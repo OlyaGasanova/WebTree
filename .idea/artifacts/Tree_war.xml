@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="Tree:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="Tree-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="Tree:war exploded" />
+    </root>
+  </artifact>
+</component>
