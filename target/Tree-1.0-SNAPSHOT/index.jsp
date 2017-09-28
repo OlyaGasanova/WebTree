@@ -31,9 +31,13 @@
 
 <body>
 <div class="section">
-    <div class='task__content' onclick="tree_toggle(arguments[0])">
-
-        <div>Root</div>
+    <div class="task__content Root"  onclick="tree_toggle(arguments[0])">
+        <div class="task__actions">
+          <!--  <i class="fa fa-eye"></i>
+           <i class="fa fa-edit"></i>
+            <i class="fa fa-times"></i>-->
+        </div>
+        <div class="MainNode">Root</div>
         <ul class="Container">
             <li class="Node IsRoot ExpandClosed">
                 <div class="Expand"></div>
@@ -79,10 +83,10 @@
         </ul>
 
     </div>
+</div>
 
 
-
-    <div class="container">
+ <!--   <div class="container">
         <div class="row">
             <div class="col-md-3">
                 <a class="btn btn-primary" onclick="showAllNames()">Показать все имена</a>
@@ -108,7 +112,7 @@
     </div>
 </div>
 
-
+-->
 <nav id="context-menu" class="context-menu">
     <ul class="context-menu__items">
         <li class="context-menu__item">
@@ -130,52 +134,107 @@
 
 <script>
 
+    var lastClickedLi = null;
 
-    // элемент TD, внутри которого сейчас курсор
+    // --- обработчики ---
+
+    document.body.onclick = function(event) {
+        var target = event.target;
+
+        // возможно, клик был внутри списка UL, но вне элементов LI
+        if (target.className != "Content") return;
+
+        // для Mac проверяем Cmd, т.к. Ctrl + click там контекстное меню
+        //if (event.metaKey || event.ctrlKey) {
+        //    toggleSelect(target);
+        //} else if (event.shiftKey) {
+       //     selectFromLast(target);
+       // } else {
+            selectSingle(target);
+        //}
+
+        lastClickedLi = target;
+    }
+
+    document.body.onmousedown = function() {
+        return false;
+    };
+
+    // --- функции для выделения ---
+
+   /* function toggleSelect(li) {
+        li.classList.toggle('selected');
+    }*/
+
+    /*function selectFromLast(target) {
+        var startElem = lastClickedLi || ul.children[0];
+
+        var isLastClickedBefore = startElem.compareDocumentPosition(target) & 4;
+
+        if (isLastClickedBefore) {
+            for (var elem = startElem; elem != target; elem = elem.nextElementSibling) {
+                elem.classList.add('selected');
+            }
+        } else {
+            for (var elem = startElem; elem != target; elem = elem.previousElementSibling) {
+                elem.classList.add('selected');
+            }
+        }
+        elem.classList.add('selected');
+    }*/
+
+
+
+
+    function deselectAll() {
+        for (var i = 0; i < ul.children.length; i++) {
+            document.body.children[i].classList.remove('selected');
+        }
+    }
+
+    function selectSingle(li) {
+        console.log("привки");
+        deselectAll();
+        li.classList.add('selected');
+    }
+
+
+
+
     var currentElem = null;
 
     document.body.onmouseover = function(event) {
         if (currentElem) {
-            // перед тем, как зайти в новый элемент, курсор всегда выходит из предыдущего
-            //
-            // если мы еще не вышли, значит это переход внутри элемента, отфильтруем его
             return;
         }
 
-        // посмотрим, куда пришёл курсор
         var target = event.target;
 
-        console.log(target.classList.toString());
-        // уж не на TD ли?
+        //console.log(target.classList.toString());
         while (target != this) {
-            if (target.classList.contains('Content')) break;
+            if (target.classList.contains('Content')||target.classList.contains('MainNode')) break;
             target = target.parentNode;
         }
         if (target == this) return;
 
-        // да, элемент перешёл внутрь TD!
         currentElem = target;
         target.style.background = 'pink';
-        console.log(event.type + ': ' + 'target=' + str(event.target));
+        //console.log(event.type + ': ' + 'target=' + str(event.target));
     };
 
 
+
     document.body.onmouseout = function(event) {
-        // если курсор и так снаружи - игнорируем это событие
         if (!currentElem) return;
 
-        // произошёл уход с элемента - проверим, куда, может быть на потомка?
         var relatedTarget = event.relatedTarget;
-        if (relatedTarget) { // может быть relatedTarget = null
+        if (relatedTarget) {
             while (relatedTarget) {
-                // идём по цепочке родителей и проверяем,
-                // если переход внутрь currentElem - игнорируем это событие
                 if (relatedTarget == currentElem) return;
                 relatedTarget = relatedTarget.parentNode;
             }
         }
 
-        // произошло событие mouseout, курсор ушёл
         currentElem.style.background = '';
         currentElem = null;
     };
@@ -184,23 +243,17 @@
 
         "use strict";
 
-        /**
-         * Function to check if we clicked inside an element with a particular class
-         * name.
-         *
-         * @param {Object} e The event
-         * @param {String} className The class name to check against
-         * @return {Boolean}
-         */
         function clickInsideElement( e, className ) {
             var el = e.srcElement || e.target;
-
+            var el2 = e.srcElement || e.target;
+            console.log(className+" !!!! "+el.getAttribute("class"));
             if ( el.classList.contains(className) ) {
-                return el;
+                return el2;
             } else {
                 while ( el = el.parentNode ) {
+                    //console.log(className+" !!!! "+el.getAttribute("class"));
                     if ( el.classList && el.classList.contains(className) ) {
-                        return el;
+                        return el2;
                     }
                 }
             }
@@ -208,12 +261,6 @@
             return false;
         }
 
-        /**
-         * Get's exact position of event.
-         *
-         * @param {Object} e The event passed in
-         * @return {Object} Returns the x and y position
-         */
         function getPosition(e) {
             var posx = 0;
             var posy = 0;
@@ -234,23 +281,12 @@
             }
         }
 
-        //////////////////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////
-        //
-        // C O R E    F U N C T I O N S
-        //
-        //////////////////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////
-
-        /**
-         * Variables.
-         */
         var contextMenuClassName = "context-menu";
         var contextMenuItemClassName = "context-menu__item";
         var contextMenuLinkClassName = "context-menu__link";
         var contextMenuActive = "context-menu--active";
 
-        var taskItemClassName = "Content";
+        var taskItemClassName = "Root";
         var taskItemInContext;
 
         var clickCoords;
@@ -269,9 +305,6 @@
         var windowWidth;
         var windowHeight;
 
-        /**
-         * Initialise our application's code.
-         */
         function init() {
             contextListener();
             clickListener();
@@ -279,13 +312,10 @@
             resizeListener();
         }
 
-        /**
-         * Listens for contextmenu events.
-         */
         function contextListener() {
             document.addEventListener( "contextmenu", function(e) {
                 taskItemInContext = clickInsideElement( e, taskItemClassName );
-
+               // console.log(taskItemInContext.getAttribute("class")+" gggg");
                 if ( taskItemInContext ) {
                     e.preventDefault();
                     toggleMenuOn();
@@ -297,12 +327,10 @@
             });
         }
 
-        /**
-         * Listens for click events.
-         */
         function clickListener() {
             document.addEventListener( "click", function(e) {
                 var clickeElIsLink = clickInsideElement( e, contextMenuLinkClassName );
+                console.log(clickeElIsLink+" ffff");
 
                 if ( clickeElIsLink ) {
                     e.preventDefault();
@@ -316,9 +344,6 @@
             });
         }
 
-        /**
-         * Listens for keyup events.
-         */
         function keyupListener() {
             window.onkeyup = function(e) {
                 if ( e.keyCode === 27 ) {
@@ -327,18 +352,12 @@
             }
         }
 
-        /**
-         * Window resize event listener
-         */
         function resizeListener() {
             window.onresize = function(e) {
                 toggleMenuOff();
             };
         }
 
-        /**
-         * Turns the custom context menu on.
-         */
         function toggleMenuOn() {
             if ( menuState !== 1 ) {
                 menuState = 1;
@@ -346,9 +365,6 @@
             }
         }
 
-        /**
-         * Turns the custom context menu off.
-         */
         function toggleMenuOff() {
             if ( menuState !== 0 ) {
                 menuState = 0;
@@ -356,11 +372,6 @@
             }
         }
 
-        /**
-         * Positions the menu properly.
-         *
-         * @param {Object} e The event
-         */
         function positionMenu(e) {
             clickCoords = getPosition(e);
             clickCoordsX = clickCoords.x;
@@ -385,19 +396,56 @@
             }
         }
 
-        /**
-         * Dummy action function that logs an action when a menu item link is clicked
-         *
-         * @param {HTMLElement} link The link that was clicked
-         */
         function menuItemListener( link ) {
-            console.log( "Task ID - " + taskItemInContext.getAttribute("data-id") + ", Task action - " + link.getAttribute("data-action"));
+            console.log("Мы тут");
+
+            if (taskItemInContext.nextElementSibling) {
+                var el = taskItemInContext.nextElementSibling;
+                var lastChild = el.lastElementChild;
+                lastChild.classList.remove("IsLast");
+                var newLi = document.createElement('li');
+                newLi.className = "Node ExpandLeaf IsLast";
+                if (taskItemInContext.classList.contains("MainNode")) newLi.className = "Node ExpandLeaf IsRoot IsLast";
+
+                var child = document.createElement('div');
+                child.className = "Expand";
+                newLi.appendChild(child);
+                child = document.createElement('div');
+                child.className = "Content";
+                child.innerHTML = "New Item";
+                newLi.appendChild(child);
+
+                el.appendChild(newLi);
+            }
+
+            else {
+                var el = taskItemInContext.parentNode;
+                el.classList.remove("ExpandLeaf");
+                el.classList.add("ExpandOpen");
+                var newUl = document.createElement('ul');
+                newUl.className="Container";
+
+                //el append <ul class="Container">
+                newLi = document.createElement('li');
+                newLi.className = "Node ExpandLeaf IsLast";
+                if (taskItemInContext.classList.contains("MainNode")) newLi.className = "Node ExpandLeaf IsRoot IsLast";
+
+                var child = document.createElement('div');
+                child.className = "Expand";
+                newLi.appendChild(child);
+                child = document.createElement('div');
+                child.className = "Content";
+                child.innerHTML = "New Item in empty";
+                newLi.appendChild(child);
+
+                newUl.appendChild(newLi);
+                el.appendChild(newUl);
+            }
+            //console.log(el.getAttribute("class"));
+            console.log( "Task ID - " + taskItemInContext.getAttribute("class") + ", Task action - " + link.getAttribute("data-action"));
             toggleMenuOff();
         }
 
-        /**
-         * Run the app.
-         */
         init();
 
     })();
@@ -469,11 +517,23 @@
         }
 
         // определить новый класс для узла
-        var newClass = hasClass(node, 'ExpandOpen') ? 'ExpandClosed' : 'ExpandOpen'
+        var newClass = hasClass(node, 'Expand') ? 'ExpandLoading' : 'Expand'
         // заменить текущий класс на newClass
-        // регексп находит отдельно стоящий open|close и меняет на newClass
-        var re =  /(^|\s)(ExpandOpen|ExpandClosed)(\s|$)/
-        node.className = node.className.replace(re, '$1'+newClass+'$3')
+        var re =  /(^|\s)(Expand|ExpandLoading)(\s|$)/
+        node.firstElementChild.className = node.firstElementChild.className.replace("Expand", 'ExpandLoading');
+
+        setTimeout(function() {
+
+            var newClass = hasClass(node, 'Expand') ? 'ExpandLoading' : 'Expand'
+            // заменить текущий класс на newClass
+            var re =  /(^|\s)(Expand|ExpandLoading)(\s|$)/
+            node.firstElementChild.className = node.firstElementChild.className.replace('ExpandLoading',"Expand");
+
+             newClass = hasClass(node, 'ExpandOpen') ? 'ExpandClosed' : 'ExpandOpen'
+            // заменить текущий класс на newClass
+             re =  /(^|\s)(ExpandOpen|ExpandClosed)(\s|$)/
+            node.className = node.className.replace(re, '$1'+newClass+'$3');
+            }, 3000);
 
 
         //!!!!!!!!!!!!
@@ -490,6 +550,9 @@
 
 <style>
 
+    .selected {
+        background: #8a80ff;
+    }
 
     .btn
     {
@@ -563,16 +626,6 @@
         float: left;
     }
 
-
-    .ExpandLoading   {
-        width: 18px;
-        height: 18px;
-        float: left;
-        background-image: url(img/expand_loading.gif);
-    }
-
-
-
     .ExpandOpen .Container {
         display: block;
     }
@@ -586,6 +639,13 @@
     }
     .ExpandLeaf .Expand {
         cursor: auto;
+    }
+
+    .ExpandLoading   {
+        width: 18px;
+        height: 18px;
+        float: left;
+        background-image: url(img/expand_loading.gif);
     }
 
 

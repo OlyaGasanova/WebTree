@@ -31,9 +31,13 @@
 
 <body>
 <div class="section">
-    <div class='task__content' onclick="tree_toggle(arguments[0])">
-
-        <div>Root</div>
+    <div class="task__content Root"  onclick="tree_toggle(arguments[0])">
+        <div class="task__actions">
+          <!--  <i class="fa fa-eye"></i>
+           <i class="fa fa-edit"></i>
+            <i class="fa fa-times"></i>-->
+        </div>
+        <div class="MainNode">Root</div>
         <ul class="Container">
             <li class="Node IsRoot ExpandClosed">
                 <div class="Expand"></div>
@@ -79,7 +83,7 @@
         </ul>
 
     </div>
-
+</div>
 
 
  <!--   <div class="container">
@@ -130,6 +134,70 @@
 
 <script>
 
+    var lastClickedLi = null;
+
+    // --- обработчики ---
+
+    document.body.onclick = function(event) {
+        var target = event.target;
+
+        if (target.className != "Content") return;
+
+        //if (event.metaKey || event.ctrlKey) {
+        //    toggleSelect(target);
+        //} else if (event.shiftKey) {
+       //     selectFromLast(target);
+       // } else {
+            selectSingle(target);
+        //}
+
+        lastClickedLi = target;
+    }
+
+    document.body.onmousedown = function() {
+        return false;
+    };
+
+    // --- функции для выделения ---
+
+   /* function toggleSelect(li) {
+        li.classList.toggle('selected');
+    }*/
+
+    /*function selectFromLast(target) {
+        var startElem = lastClickedLi || ul.children[0];
+
+        var isLastClickedBefore = startElem.compareDocumentPosition(target) & 4;
+
+        if (isLastClickedBefore) {
+            for (var elem = startElem; elem != target; elem = elem.nextElementSibling) {
+                elem.classList.add('selected');
+            }
+        } else {
+            for (var elem = startElem; elem != target; elem = elem.previousElementSibling) {
+                elem.classList.add('selected');
+            }
+        }
+        elem.classList.add('selected');
+    }*/
+
+
+
+
+    function deselectAll() {
+        for (var i = 0; i < ul.children.length; i++) {
+            document.body.children[i].classList.remove('selected');
+        }
+    }
+
+    function selectSingle(li) {
+        console.log("привки");
+        deselectAll();
+        li.classList.add('selected');
+    }
+
+
+
 
     var currentElem = null;
 
@@ -140,17 +208,18 @@
 
         var target = event.target;
 
-        console.log(target.classList.toString());
+        //console.log(target.classList.toString());
         while (target != this) {
-            if (target.classList.contains('Content')) break;
+            if (target.classList.contains('Content')||target.classList.contains('MainNode')) break;
             target = target.parentNode;
         }
         if (target == this) return;
 
         currentElem = target;
         target.style.background = 'pink';
-        console.log(event.type + ': ' + 'target=' + str(event.target));
+        //console.log(event.type + ': ' + 'target=' + str(event.target));
     };
+
 
 
     document.body.onmouseout = function(event) {
@@ -174,13 +243,15 @@
 
         function clickInsideElement( e, className ) {
             var el = e.srcElement || e.target;
-
+            var el2 = e.srcElement || e.target;
+            console.log(className+" !!!! "+el.getAttribute("class"));
             if ( el.classList.contains(className) ) {
-                return el;
+                return el2;
             } else {
                 while ( el = el.parentNode ) {
+                    //console.log(className+" !!!! "+el.getAttribute("class"));
                     if ( el.classList && el.classList.contains(className) ) {
-                        return el;
+                        return el2;
                     }
                 }
             }
@@ -213,7 +284,7 @@
         var contextMenuLinkClassName = "context-menu__link";
         var contextMenuActive = "context-menu--active";
 
-        var taskItemClassName = "Content";
+        var taskItemClassName = "Root";
         var taskItemInContext;
 
         var clickCoords;
@@ -242,7 +313,7 @@
         function contextListener() {
             document.addEventListener( "contextmenu", function(e) {
                 taskItemInContext = clickInsideElement( e, taskItemClassName );
-
+               // console.log(taskItemInContext.getAttribute("class")+" gggg");
                 if ( taskItemInContext ) {
                     e.preventDefault();
                     toggleMenuOn();
@@ -257,6 +328,7 @@
         function clickListener() {
             document.addEventListener( "click", function(e) {
                 var clickeElIsLink = clickInsideElement( e, contextMenuLinkClassName );
+                console.log(clickeElIsLink+" ffff");
 
                 if ( clickeElIsLink ) {
                     e.preventDefault();
@@ -323,7 +395,52 @@
         }
 
         function menuItemListener( link ) {
-            console.log( "Task ID - " + taskItemInContext.getAttribute("data-id") + ", Task action - " + link.getAttribute("data-action"));
+            console.log("Мы тут");
+
+            if (taskItemInContext.nextElementSibling) {
+                var el = taskItemInContext.nextElementSibling;
+                var lastChild = el.lastElementChild;
+                lastChild.classList.remove("IsLast");
+                var newLi = document.createElement('li');
+                newLi.className = "Node ExpandLeaf IsLast";
+                if (taskItemInContext.classList.contains("MainNode")) newLi.className = "Node ExpandLeaf IsRoot IsLast";
+
+                var child = document.createElement('div');
+                child.className = "Expand";
+                newLi.appendChild(child);
+                child = document.createElement('div');
+                child.className = "Content";
+                child.innerHTML = "New Item";
+                newLi.appendChild(child);
+
+                el.appendChild(newLi);
+            }
+
+            else {
+                var el = taskItemInContext.parentNode;
+                el.classList.remove("ExpandLeaf");
+                el.classList.add("ExpandOpen");
+                var newUl = document.createElement('ul');
+                newUl.className="Container";
+
+                //el append <ul class="Container">
+                newLi = document.createElement('li');
+                newLi.className = "Node ExpandLeaf IsLast";
+                if (taskItemInContext.classList.contains("MainNode")) newLi.className = "Node ExpandLeaf IsRoot IsLast";
+
+                var child = document.createElement('div');
+                child.className = "Expand";
+                newLi.appendChild(child);
+                child = document.createElement('div');
+                child.className = "Content";
+                child.innerHTML = "New Item in empty";
+                newLi.appendChild(child);
+
+                newUl.appendChild(newLi);
+                el.appendChild(newUl);
+            }
+            //console.log(el.getAttribute("class"));
+            console.log( "Task ID - " + taskItemInContext.getAttribute("class") + ", Task action - " + link.getAttribute("data-action"));
             toggleMenuOff();
         }
 
@@ -398,10 +515,23 @@
         }
 
         // определить новый класс для узла
-        var newClass = hasClass(node, 'ExpandOpen') ? 'ExpandClosed' : 'ExpandOpen'
+        var newClass = hasClass(node, 'Expand') ? 'ExpandLoading' : 'Expand'
         // заменить текущий класс на newClass
-        var re =  /(^|\s)(ExpandOpen|ExpandClosed)(\s|$)/
-        node.className = node.className.replace(re, '$1'+newClass+'$3')
+        var re =  /(^|\s)(Expand|ExpandLoading)(\s|$)/
+        node.firstElementChild.className = node.firstElementChild.className.replace("Expand", 'ExpandLoading');
+
+        setTimeout(function() {
+
+            var newClass = hasClass(node, 'Expand') ? 'ExpandLoading' : 'Expand'
+            // заменить текущий класс на newClass
+            var re =  /(^|\s)(Expand|ExpandLoading)(\s|$)/
+            node.firstElementChild.className = node.firstElementChild.className.replace('ExpandLoading',"Expand");
+
+             newClass = hasClass(node, 'ExpandOpen') ? 'ExpandClosed' : 'ExpandOpen'
+            // заменить текущий класс на newClass
+             re =  /(^|\s)(ExpandOpen|ExpandClosed)(\s|$)/
+            node.className = node.className.replace(re, '$1'+newClass+'$3');
+            }, 3000);
 
 
         //!!!!!!!!!!!!
@@ -418,6 +548,9 @@
 
 <style>
 
+    .selected {
+        background: #8a80ff;
+    }
 
     .btn
     {
@@ -491,16 +624,6 @@
         float: left;
     }
 
-
-    .ExpandLoading   {
-        width: 18px;
-        height: 18px;
-        float: left;
-        background-image: url(img/expand_loading.gif);
-    }
-
-
-
     .ExpandOpen .Container {
         display: block;
     }
@@ -514,6 +637,13 @@
     }
     .ExpandLeaf .Expand {
         cursor: auto;
+    }
+
+    .ExpandLoading   {
+        width: 18px;
+        height: 18px;
+        float: left;
+        background-image: url(img/expand_loading.gif);
     }
 
 
