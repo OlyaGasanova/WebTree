@@ -8,15 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
 
-    <script src="js/lib.js"></script>
-    <script src="js/DragManager.js"></script>
-    <script src="js/DragAvatar.js"></script>
-    <script src="js/DragZone.js"></script>
-    <script src="js/DropTarget.js"></script>
-
-    <link rel="stylesheet" type="text/css" href="css/dragTree.css">
-
-    <script src="https://cdn.polyfill.io/v1/polyfill.js?features=Element.prototype.closest"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css"
@@ -39,62 +30,53 @@
 </head>
 
 <body>
-<div id="prompt-form-container">
-    <form id="prompt-form">
-        <div id="prompt-message"></div>
-        <input name="text" type="text">
-        <input type="submit" value="Ок">
-        <input type="button" name="cancel" value="Отмена">
-    </form>
-</div>
-
-<div id="tree" class="section">
+<div class="section">
     <div class="task__content Root"  onclick="tree_toggle(arguments[0])">
         <div class="task__actions">
           <!--  <i class="fa fa-eye"></i>
            <i class="fa fa-edit"></i>
             <i class="fa fa-times"></i>-->
         </div>
-        <div class="MainNode dropzone">Root</div>
-        <ul class="Container ">
-            <li class="Node draggable IsRoot ExpandClosed">
+        <div class="MainNode">Root</div>
+        <ul class="Container">
+            <li class="Node IsRoot ExpandClosed">
                 <div class="Expand"></div>
                 <!--oncontextmenu="alert('Клик!')"-->
-                <div class="Content dropzone">Item 1</div>
+                <div class="Content">Item 1</div>
                 <ul class="Container">
-                    <li class="Node draggable ExpandClosed">
+                    <li class="Node ExpandClosed">
                         <div class="Expand"></div>
-                        <div class="Content dropzone">Item 1.1</div>
-                        <ul class=" Container">
-                            <li class="Node draggable  ExpandLeaf IsLast">
+                        <div class="Content">Item 1.1</div>
+                        <ul class="Container">
+                            <li class="Node ExpandLeaf IsLast">
                                 <div class="Expand"></div>
-                                <div class="Content dropzone">Item 1.1.2</div>
+                                <div id="Item1_1_2" class="Content">Item 1.1.2</div>
                             </li>
                         </ul>
                     </li>
-                    <li class="Node draggable ExpandLeaf IsLast">
+                    <li class="Node ExpandLeaf IsLast">
                         <div class="Expand"></div>
-                        <div class="Content dropzone">Item 1.2</div>
+                        <div class="Content">Item 1.2</div>
                     </li>
                 </ul>
             </li>
-            <li class="Node  draggable IsRoot ExpandClosed">
+            <li class="Node IsRoot ExpandClosed">
                 <div class="Expand"></div>
-                <div class="Content dropzone">Item 2<br/>title long yeah</div>
-                <ul class=" Container ">
-                    <li class="Node draggable ExpandLeaf IsLast">
+                <div class="Content">Item 2<br/>title long yeah</div>
+                <ul class="Container">
+                    <li class="Node ExpandLeaf IsLast">
                         <div class="Expand"></div>
-                        <div onclick="tryget()" class="Content dropzone">Item 2.1</div>
+                        <div onclick="tryget()" class="Content">Item 2.1</div>
                     </li>
                 </ul>
             </li>
-            <li class="Node ExpandOpen  draggable IsRoot IsLast">
+            <li class="Node ExpandOpen IsRoot IsLast">
                 <div class="Expand"></div>
-                <div class="Content dropzone">Item 3</div>
-                <ul class=" Container ">
-                    <li class="Node draggable  ExpandLeaf IsLast">
+                <div class="Content">Item 3</div>
+                <ul class="Container">
+                    <li class="Node ExpandLeaf IsLast">
                         <div class="Expand"></div>
-                        <div class="Content dropzone">Что ты на это скажешь</div>
+                        <div class="Content">Что ты на это скажешь</div>
                     </li>
                 </ul>
             </li>
@@ -104,6 +86,33 @@
 </div>
 
 
+ <!--   <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <a class="btn btn-primary" onclick="showAllNames()">Показать все имена</a>
+
+                <div class="border">
+                    <div>
+                        <a class="btn btn-primary" onclick="addName()">Добавить имя</a>
+
+                        <div class="modal-body" style="text-align: center;">
+                            <input class="form-control" id="NewNameInput"
+                                   placeholder="Enter some name">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <table class="table">
+                    <tbody id="table_names">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+-->
 <nav id="context-menu" class="context-menu">
     <ul class="context-menu__items">
         <li class="context-menu__item">
@@ -125,82 +134,6 @@
 
 <script>
 
-    var tree = document.getElementById('tree');
-    new DragZone(tree);
-    new DropTarget(tree);
-
-
-
-
-
-    function showCover() {
-        var coverDiv = document.createElement('div');
-        coverDiv.id = 'cover-div';
-        document.body.appendChild(coverDiv);
-    }
-
-    function hideCover() {
-        document.body.removeChild(document.getElementById('cover-div'));
-    }
-
-    function showPrompt(text, callback) {
-        showCover();
-        var form = document.getElementById('prompt-form');
-        var container = document.getElementById('prompt-form-container');
-        document.getElementById('prompt-message').innerHTML = text;
-        form.elements.text.value = '';
-
-        function complete(value) {
-            hideCover();
-            container.style.display = 'none';
-            document.onkeydown = null;
-            callback(value);
-        }
-
-        form.onsubmit = function() {
-            var value = form.elements.text.value;
-            if (value == '') return false; // игнорировать пустой submit
-
-            complete(value);
-            return false;
-        };
-
-        form.elements.cancel.onclick = function() {
-            complete(null);
-        };
-
-        document.onkeydown = function(e) {
-            if (e.keyCode == 27) { // escape
-                complete(null);
-            }
-        };
-
-        var lastElem = form.elements[form.elements.length - 1];
-        var firstElem = form.elements[0];
-
-        lastElem.onkeydown = function(e) {
-            if (e.keyCode == 9 && !e.shiftKey) {
-                firstElem.focus();
-                return false;
-            }
-        };
-
-        firstElem.onkeydown = function(e) {
-            if (e.keyCode == 9 && e.shiftKey) {
-                lastElem.focus();
-                return false;
-            }
-        };
-
-
-        container.style.display = 'block';
-        form.elements.text.focus();
-    }
-
-
-
-
-
     var lastClickedLi = null;
 
     // --- обработчики ---
@@ -208,9 +141,7 @@
     document.body.onclick = function(event) {
         var target = event.target;
 
-        //console.log("привки");
-       // console.log(target.className)
-        if (!target.classList.contains("Content")) return;
+        if (target.className != "Content") return;
 
         //if (event.metaKey || event.ctrlKey) {
         //    toggleSelect(target);
@@ -223,7 +154,9 @@
         lastClickedLi = target;
     }
 
-
+    document.body.onmousedown = function() {
+        return false;
+    };
 
     // --- функции для выделения ---
 
@@ -252,19 +185,15 @@
 
 
     function deselectAll() {
-        var arraychilds = document.body.getElementsByTagName('*');
-        for (var i = 0; i < arraychilds.length; i++) {
-           arraychilds[i].classList.remove('selected');
-            arraychilds[i].classList.remove("select");
-
+        for (var i = 0; i < ul.children.length; i++) {
+            document.body.children[i].classList.remove('selected');
         }
     }
 
     function selectSingle(li) {
-       // console.log("привки");
+        console.log("привки");
         deselectAll();
-        li.previousElementSibling.classList.add('selected');
-        li.parentNode.classList.add("select");
+        li.classList.add('selected');
     }
 
 
@@ -287,7 +216,7 @@
         if (target == this) return;
 
         currentElem = target;
-        target.style.background = '#7b92d6';
+        target.style.background = 'pink';
         //console.log(event.type + ': ' + 'target=' + str(event.target));
     };
 
@@ -315,7 +244,7 @@
         function clickInsideElement( e, className ) {
             var el = e.srcElement || e.target;
             var el2 = e.srcElement || e.target;
-           // console.log(className+" !!!! "+el.getAttribute("class"));
+            console.log(className+" !!!! "+el.getAttribute("class"));
             if ( el.classList.contains(className) ) {
                 return el2;
             } else {
@@ -399,7 +328,7 @@
         function clickListener() {
             document.addEventListener( "click", function(e) {
                 var clickeElIsLink = clickInsideElement( e, contextMenuLinkClassName );
-               // console.log(clickeElIsLink+" ffff");
+                console.log(clickeElIsLink+" ffff");
 
                 if ( clickeElIsLink ) {
                     e.preventDefault();
@@ -466,65 +395,52 @@
         }
 
         function menuItemListener( link ) {
-            //console.log("Мы тут");
-            var name="123";
-            showPrompt("Введите имя", function(value) {
-                if (value==null) return;
-                name = value;
-                if (taskItemInContext.nextElementSibling) {
-                    var el = taskItemInContext.parentNode;
-                    el.classList.remove("ExpandLeaf");
-                    el.classList.add("ExpandOpen");
-                    el = taskItemInContext.nextElementSibling;
-                    if (el.firstElementChild) {
-                        var lastChild = el.lastElementChild;
-                        lastChild.classList.remove("IsLast");
+            console.log("Мы тут");
 
-                    }
-                    var newLi = document.createElement('li');
-                    newLi.className = "Node ExpandLeaf draggable IsLast";
-                    if (taskItemInContext.classList.contains("MainNode")) newLi.className = "Node ExpandLeaf IsRoot IsLast";
+            if (taskItemInContext.nextElementSibling) {
+                var el = taskItemInContext.nextElementSibling;
+                var lastChild = el.lastElementChild;
+                lastChild.classList.remove("IsLast");
+                var newLi = document.createElement('li');
+                newLi.className = "Node ExpandLeaf IsLast";
+                if (taskItemInContext.classList.contains("MainNode")) newLi.className = "Node ExpandLeaf IsRoot IsLast";
 
-                    var child = document.createElement('div');
-                    child.className = "Expand";
-                    newLi.appendChild(child);
-                    child = document.createElement('div');
-                    child.className = "Content";
-                    child.innerHTML = name;
-                    newLi.appendChild(child);
+                var child = document.createElement('div');
+                child.className = "Expand";
+                newLi.appendChild(child);
+                child = document.createElement('div');
+                child.className = "Content";
+                child.innerHTML = "New Item";
+                newLi.appendChild(child);
 
-                    el.appendChild(newLi);
-                }
+                el.appendChild(newLi);
+            }
 
-                else {
-                    var el = taskItemInContext.parentNode;
-                    el.classList.remove("ExpandLeaf");
-                    el.classList.add("ExpandOpen");
-                    var newUl = document.createElement('ul');
-                    newUl.className="Container";
+            else {
+                var el = taskItemInContext.parentNode;
+                el.classList.remove("ExpandLeaf");
+                el.classList.add("ExpandOpen");
+                var newUl = document.createElement('ul');
+                newUl.className="Container";
 
-                    //el append <ul class="Container">
-                    newLi = document.createElement('li');
-                    newLi.className = "Node ExpandLeaf draggable IsLast";
-                    if (taskItemInContext.classList.contains("MainNode")) newLi.className = "Node ExpandLeaf IsRoot IsLast";
+                //el append <ul class="Container">
+                newLi = document.createElement('li');
+                newLi.className = "Node ExpandLeaf IsLast";
+                if (taskItemInContext.classList.contains("MainNode")) newLi.className = "Node ExpandLeaf IsRoot IsLast";
 
-                    var child = document.createElement('div');
-                    child.className = "Expand";
-                    newLi.appendChild(child);
-                    child = document.createElement('div');
-                    child.className = "Content";
-                    child.innerHTML = name+" empt";
-                    newLi.appendChild(child);
+                var child = document.createElement('div');
+                child.className = "Expand";
+                newLi.appendChild(child);
+                child = document.createElement('div');
+                child.className = "Content";
+                child.innerHTML = "New Item in empty";
+                newLi.appendChild(child);
 
-                    newUl.appendChild(newLi);
-                    el.appendChild(newUl);
-                }
-
-           });
-
-
+                newUl.appendChild(newLi);
+                el.appendChild(newUl);
+            }
             //console.log(el.getAttribute("class"));
-           // console.log( "Task ID - " + taskItemInContext.getAttribute("class") + ", Task action - " + link.getAttribute("data-action"));
+            console.log( "Task ID - " + taskItemInContext.getAttribute("class") + ", Task action - " + link.getAttribute("data-action"));
             toggleMenuOff();
         }
 
@@ -545,7 +461,7 @@
 
         var portName = window.location.port;
         serverPath = serverProtocolName + "//" + serverHostName + ":" + portName;
-        //console.log(serverPath);
+        console.log(serverPath);
 
         $.ajax({
             url: serverPath + "/",
@@ -568,9 +484,9 @@
                         "<div class='Expand'></div>"+
                         "<div class='Content'>Item 1.1.2.1</div>"+
                     "</li>"+"</ul>");
-                       // console.log("что-то работает");
+                        console.log("что-то работает");
                         keysList.forEach(function(item, i, arr) {
-                           // console.log(item);
+                            console.log(item);
                        });
 
                         break;
@@ -578,7 +494,7 @@
             },
             error: function (xhr, status, error) {
                 alert(error);
-               // console.log("запрос не посылается");
+                console.log("запрос не посылается");
             }
         });
     }
@@ -615,7 +531,7 @@
             // заменить текущий класс на newClass
              re =  /(^|\s)(ExpandOpen|ExpandClosed)(\s|$)/
             node.className = node.className.replace(re, '$1'+newClass+'$3');
-            }, 2000);
+            }, 3000);
 
 
         //!!!!!!!!!!!!
@@ -632,12 +548,8 @@
 
 <style>
 
-
-
-    .dragover { outline: 1px dashed green; }
-
     .selected {
-        background: #697fc2;
+        background: #8a80ff;
     }
 
     .btn
@@ -796,53 +708,5 @@
         background-color: #0066aa;
     }
 
-
-    #prompt-form {
-        display: inline-block;
-        padding: 5px 5px 5px 5px;
-        width: 200px;
-        border: 1px solid black;
-        background: white;
-        vertical-align: middle;
-    }
-
-    #prompt-form-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 9999;
-        display: none;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-    }
-
-    #prompt-form-container:before {
-        display: inline-block;
-        height: 100%;
-        content: '';
-        vertical-align: middle;
-    }
-
-    #cover-div {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 9000;
-        width: 100%;
-        height: 100%;
-        background-color: gray;
-        opacity: 0.3;
-    }
-
-    #prompt-form input[name="text"] {
-        display: block;
-        margin: 5px;
-        width: 140px;
-    }
-
-    body{
-        margin: 50px;
-    }
 
 </style>
