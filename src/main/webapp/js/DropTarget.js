@@ -106,10 +106,12 @@ DropTarget.prototype.onDragEnd = function(avatar, event) {
         console.log("azazaz");
     }
     else {
-        elemToMove.parentNode.children[elemToMove.parentNode.children.length-2].classList.add("IsLast");
+        if (elemToMove.parentNode.lastElementChild == elemToMove)
+            elemToMove.parentNode.children[elemToMove.parentNode.children.length-2].classList.add("IsLast");
+        //else  elemToMove.parentNode.children[elemToMove.parentNode.children.length-2].classList.add("IsLast");
         console.log("переделаем изласт");
         console.log(elemToMove.parentNode.children.length);
-        console.log(elemToMove.parentNode.children[elemToMove.parentNode.children.length-2].classList.toString());
+        console.log(elemToMove.parentNode.children[elemToMove.parentNode.children.length-1].classList.toString());
     }
 
     console.log(elemToMove.parentNode.parentNode.classList.toString());

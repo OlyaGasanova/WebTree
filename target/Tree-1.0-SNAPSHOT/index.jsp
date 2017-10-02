@@ -13,16 +13,21 @@
     <script src="js/DragAvatar.js"></script>
     <script src="js/DragZone.js"></script>
     <script src="js/DropTarget.js"></script>
-
-    <link rel="stylesheet" type="text/css" href="css/dragTree.css">
-
+    <script src="js/ShowForm.js"></script>
+    <script src="js/Actions.js"></script>
     <script src="https://cdn.polyfill.io/v1/polyfill.js?features=Element.prototype.closest"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css"
           rel="stylesheet" type="text/css">
     <link href="https://pingendo.github.io/pingendo-bootstrap/themes/default/bootstrap.css"
           rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="./css/dragTree.css">
+    <link rel="stylesheet" type="text/css" href="./css/contextMenu.css">
+    <link rel="stylesheet" type="text/css" href="./css/form.css">
+    <link rel="stylesheet" type="text/css" href="./css/main.css">
+    <link rel="stylesheet" type="text/css" href="./css/treeUI.css">
 
     <link href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" type="text/css">
 
@@ -42,7 +47,7 @@
 <div id="prompt-form-container">
     <form id="prompt-form">
         <div id="prompt-message"></div>
-        <input name="text" type="text">
+        <input name="text" type="text" autocomplete="off">
         <input type="submit" value="Ок">
         <input type="button" name="cancel" value="Отмена">
     </form>
@@ -50,51 +55,45 @@
 
 <div id="tree" class="section">
     <div class="task__content Root"  onclick="tree_toggle(arguments[0])">
-        <div class="task__actions">
-          <!--  <i class="fa fa-eye"></i>
-           <i class="fa fa-edit"></i>
-            <i class="fa fa-times"></i>-->
-        </div>
-        <div class="MainNode dropzone">Root</div>
+        <div class="MainNode">Root</div>
         <ul class="Container ">
-            <li class="Node draggable IsRoot ExpandClosed">
+            <li class="Node IsRoot ExpandClosed">
                 <div class="Expand"></div>
-                <!--oncontextmenu="alert('Клик!')"-->
-                <div class="Content dropzone">Item 1</div>
+                <div class="Content">Item 1</div>
                 <ul class="Container">
-                    <li class="Node draggable ExpandClosed">
+                    <li class="Node ExpandClosed">
                         <div class="Expand"></div>
-                        <div class="Content dropzone">Item 1.1</div>
+                        <div class="Content">Item 1.1</div>
                         <ul class=" Container">
-                            <li class="Node draggable  ExpandLeaf IsLast">
+                            <li class="Node ExpandLeaf IsLast">
                                 <div class="Expand"></div>
-                                <div class="Content dropzone">Item 1.1.2</div>
+                                <div class="Content">Item 1.1.2</div>
                             </li>
                         </ul>
                     </li>
-                    <li class="Node draggable ExpandLeaf IsLast">
+                    <li class="Node ExpandLeaf IsLast">
                         <div class="Expand"></div>
-                        <div class="Content dropzone">Item 1.2</div>
+                        <div class="Content">Item 1.2</div>
                     </li>
                 </ul>
             </li>
-            <li class="Node  draggable IsRoot ExpandClosed">
+            <li class="Node IsRoot ExpandClosed">
                 <div class="Expand"></div>
-                <div class="Content dropzone">Item 2<br/>title long yeah</div>
+                <div class="Content">Item 2<br/>title long yeah</div>
                 <ul class=" Container ">
-                    <li class="Node draggable ExpandLeaf IsLast">
+                    <li class="Node ExpandLeaf IsLast">
                         <div class="Expand"></div>
-                        <div onclick="tryget()" class="Content dropzone">Item 2.1</div>
+                        <div class="Content">Item 2.1</div>
                     </li>
                 </ul>
             </li>
-            <li class="Node ExpandOpen  draggable IsRoot IsLast">
+            <li class="Node ExpandOpen IsRoot IsLast">
                 <div class="Expand"></div>
-                <div class="Content dropzone">Item 3</div>
+                <div class="Content">Item 3</div>
                 <ul class=" Container ">
-                    <li class="Node draggable  ExpandLeaf IsLast">
+                    <li class="Node ExpandLeaf IsLast">
                         <div class="Expand"></div>
-                        <div class="Content dropzone">Что ты на это скажешь</div>
+                        <div class="Content" >Item 3.1</div>
                     </li>
                 </ul>
             </li>
@@ -107,13 +106,13 @@
 <nav id="context-menu" class="context-menu">
     <ul class="context-menu__items">
         <li class="context-menu__item">
-            <a href="#" class="context-menu__link" data-action="View"><i class="fa fa-eye"></i> View Task</a>
+            <a href="#" class="context-menu__link" data-action="add"><i class="fa fa-eye"></i> Add child</a>
         </li>
         <li class="context-menu__item">
-            <a href="#" class="context-menu__link" data-action="Edit"><i class="fa fa-edit"></i> Edit Task</a>
+            <a href="#" class="context-menu__link" data-action="edit"><i class="fa fa-edit"></i> Edit </a>
         </li>
         <li class="context-menu__item">
-            <a href="#" class="context-menu__link" data-action="Delete"><i class="fa fa-times"></i> Delete Task</a>
+            <a href="#" class="context-menu__link" data-action="delete"><i class="fa fa-times"></i> Delete</a>
         </li>
     </ul>
 </nav>
@@ -124,7 +123,6 @@
 </html>
 
 <script>
-
     var tree = document.getElementById('tree');
     new DragZone(tree);
     new DropTarget(tree);
@@ -209,15 +207,15 @@
         var target = event.target;
 
         //console.log("привки");
-       // console.log(target.className)
+        // console.log(target.className)
         if (!target.classList.contains("Content")) return;
 
         //if (event.metaKey || event.ctrlKey) {
         //    toggleSelect(target);
         //} else if (event.shiftKey) {
-       //     selectFromLast(target);
-       // } else {
-            selectSingle(target);
+        //     selectFromLast(target);
+        // } else {
+        selectSingle(target);
         //}
 
         lastClickedLi = target;
@@ -227,26 +225,26 @@
 
     // --- функции для выделения ---
 
-   /* function toggleSelect(li) {
-        li.classList.toggle('selected');
-    }*/
+    /* function toggleSelect(li) {
+     li.classList.toggle('selected');
+     }*/
 
     /*function selectFromLast(target) {
-        var startElem = lastClickedLi || ul.children[0];
+     var startElem = lastClickedLi || ul.children[0];
 
-        var isLastClickedBefore = startElem.compareDocumentPosition(target) & 4;
+     var isLastClickedBefore = startElem.compareDocumentPosition(target) & 4;
 
-        if (isLastClickedBefore) {
-            for (var elem = startElem; elem != target; elem = elem.nextElementSibling) {
-                elem.classList.add('selected');
-            }
-        } else {
-            for (var elem = startElem; elem != target; elem = elem.previousElementSibling) {
-                elem.classList.add('selected');
-            }
-        }
-        elem.classList.add('selected');
-    }*/
+     if (isLastClickedBefore) {
+     for (var elem = startElem; elem != target; elem = elem.nextElementSibling) {
+     elem.classList.add('selected');
+     }
+     } else {
+     for (var elem = startElem; elem != target; elem = elem.previousElementSibling) {
+     elem.classList.add('selected');
+     }
+     }
+     elem.classList.add('selected');
+     }*/
 
 
 
@@ -254,14 +252,14 @@
     function deselectAll() {
         var arraychilds = document.body.getElementsByTagName('*');
         for (var i = 0; i < arraychilds.length; i++) {
-           arraychilds[i].classList.remove('selected');
+            arraychilds[i].classList.remove('selected');
             arraychilds[i].classList.remove("select");
 
         }
     }
 
     function selectSingle(li) {
-       // console.log("привки");
+        // console.log("привки");
         deselectAll();
         li.previousElementSibling.classList.add('selected');
         li.parentNode.classList.add("select");
@@ -315,7 +313,7 @@
         function clickInsideElement( e, className ) {
             var el = e.srcElement || e.target;
             var el2 = e.srcElement || e.target;
-           // console.log(className+" !!!! "+el.getAttribute("class"));
+            // console.log(className+" !!!! "+el.getAttribute("class"));
             if ( el.classList.contains(className) ) {
                 return el2;
             } else {
@@ -384,7 +382,7 @@
         function contextListener() {
             document.addEventListener( "contextmenu", function(e) {
                 taskItemInContext = clickInsideElement( e, taskItemClassName );
-               // console.log(taskItemInContext.getAttribute("class")+" gggg");
+                // console.log(taskItemInContext.getAttribute("class")+" gggg");
                 if ( taskItemInContext ) {
                     e.preventDefault();
                     toggleMenuOn();
@@ -399,7 +397,7 @@
         function clickListener() {
             document.addEventListener( "click", function(e) {
                 var clickeElIsLink = clickInsideElement( e, contextMenuLinkClassName );
-               // console.log(clickeElIsLink+" ffff");
+                // console.log(clickeElIsLink+" ffff");
 
                 if ( clickeElIsLink ) {
                     e.preventDefault();
@@ -466,14 +464,16 @@
         }
 
         function menuItemListener( link ) {
-            //console.log("Мы тут");
-            var name="123";
-            showPrompt("Введите имя", function(value) {
+
+            selectSingle(taskItemInContext);
+
+            if (link.getAttribute("data-action")=="add") showPrompt("Введите имя", function(value) {
                 if (value==null) return;
-                name = value;
+
                 if (taskItemInContext.nextElementSibling) {
                     var el = taskItemInContext.parentNode;
                     el.classList.remove("ExpandLeaf");
+                    el.classList.remove("ExpandClosed");
                     el.classList.add("ExpandOpen");
                     el = taskItemInContext.nextElementSibling;
                     if (el.firstElementChild) {
@@ -490,7 +490,7 @@
                     newLi.appendChild(child);
                     child = document.createElement('div');
                     child.className = "Content";
-                    child.innerHTML = name;
+                    child.innerHTML = value;
                     newLi.appendChild(child);
 
                     el.appendChild(newLi);
@@ -513,18 +513,37 @@
                     newLi.appendChild(child);
                     child = document.createElement('div');
                     child.className = "Content";
-                    child.innerHTML = name+" empt";
+                    child.innerHTML = value;
                     newLi.appendChild(child);
 
                     newUl.appendChild(newLi);
                     el.appendChild(newUl);
                 }
 
-           });
+            });
+            if (link.getAttribute("data-action")=="edit"){
+                showPrompt("Введите новое имя", function(value) {
+                    if (value == null) return;
+                    taskItemInContext.innerHTML = value;
+                });
+            }
 
+            if(link.getAttribute("data-action")=="delete") {
 
-            //console.log(el.getAttribute("class"));
-           // console.log( "Task ID - " + taskItemInContext.getAttribute("class") + ", Task action - " + link.getAttribute("data-action"));
+                var el = taskItemInContext.parentNode;
+                if(el.parentNode.firstElementChild==el.parentNode.lastElementChild) {
+                    el.parentNode.parentNode.classList.remove("ExpandOpen");
+                    el.parentNode.parentNode.classList.add("ExpandLeaf");
+                    console.log("azazaz");
+                }
+                else {
+                    if (el.parentNode.lastElementChild == el)
+                        el.parentNode.children[el.parentNode.children.length-2].classList.add("IsLast");
+                    console.log("переделаем изласт");
+                }
+                el.remove();
+            }
+
             toggleMenuOff();
         }
 
@@ -565,20 +584,20 @@
                     case "children":
                         var keysList = event["list"].replace("[", ""). replace("]", "").split(",");
                         $("#Item1_1_2").after("<ul class='Container'>"+"<li class='Node ExpandLeaf IsLast'>"+
-                        "<div class='Expand'></div>"+
-                        "<div class='Content'>Item 1.1.2.1</div>"+
-                    "</li>"+"</ul>");
-                       // console.log("что-то работает");
+                            "<div class='Expand'></div>"+
+                            "<div class='Content'>Item 1.1.2.1</div>"+
+                            "</li>"+"</ul>");
+                        // console.log("что-то работает");
                         keysList.forEach(function(item, i, arr) {
-                           // console.log(item);
-                       });
+                            // console.log(item);
+                        });
 
                         break;
                 }
             },
             error: function (xhr, status, error) {
                 alert(error);
-               // console.log("запрос не посылается");
+                // console.log("запрос не посылается");
             }
         });
     }
@@ -611,11 +630,11 @@
             var re =  /(^|\s)(Expand|ExpandLoading)(\s|$)/
             node.firstElementChild.className = node.firstElementChild.className.replace('ExpandLoading',"Expand");
 
-             newClass = hasClass(node, 'ExpandOpen') ? 'ExpandClosed' : 'ExpandOpen'
+            newClass = hasClass(node, 'ExpandOpen') ? 'ExpandClosed' : 'ExpandOpen'
             // заменить текущий класс на newClass
-             re =  /(^|\s)(ExpandOpen|ExpandClosed)(\s|$)/
+            re =  /(^|\s)(ExpandOpen|ExpandClosed)(\s|$)/
             node.className = node.className.replace(re, '$1'+newClass+'$3');
-            }, 2000);
+        }, 2000);
 
 
         //!!!!!!!!!!!!

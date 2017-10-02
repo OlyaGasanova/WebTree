@@ -20,12 +20,11 @@ public class SQLiteClass {
         stat.execute("CREATE TABLE if not exists 'relative' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' text, 'parent' text);");
 
 
-
         //stat = conn.createStatement();
-       // ResultSet myrs = stat.executeQuery("SELECT * FROM relative where parent='mama'");
-       // while (myrs.next())
-       //    System.out.println(myrs.getString("name")+" вот такая строка");
-       stat.close();
+        ResultSet myrs = stat.executeQuery("SELECT * FROM relative where parent=\'"+"Root"+"\'");
+        while (myrs.next())
+            System.out.println(myrs.getString("name")+" вот такая строка");
+        stat.close();
         System.out.println("вот такая вот строка");
 
     }
@@ -54,7 +53,7 @@ public class SQLiteClass {
         Conn();
         stat = conn.createStatement();
         ResultSet rs = stat.executeQuery("select name from names");
-        
+
         while (rs.next()) {
             names.add(rs.getString("name"));
         }
@@ -67,13 +66,13 @@ public class SQLiteClass {
     }
 
 
-    public static ArrayList<String> getChildren() throws ClassNotFoundException, SQLException, NamingException
+    public static ArrayList<String> getChildren(String parentname) throws ClassNotFoundException, SQLException, NamingException
     {
         ArrayList<String> names = new ArrayList<String>();
 
         Conn();
         stat = conn.createStatement();
-        ResultSet rs = stat.executeQuery("select name from 'relative' where parent='mama';");
+        ResultSet rs = stat.executeQuery("select name from relative where parent=\'"+parentname+"\'");
 
         while (rs.next()) {
             names.add(rs.getString("name"));
@@ -93,3 +92,4 @@ public class SQLiteClass {
         conn.close();
     }
 }
+

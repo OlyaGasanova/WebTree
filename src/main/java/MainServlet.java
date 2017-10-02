@@ -1,15 +1,9 @@
-import Databases.SQLiteClass;
-import org.json.JSONObject;
-
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
 
 //@WebServlet("/s")
 public class MainServlet extends HttpServlet {
@@ -24,7 +18,7 @@ public class MainServlet extends HttpServlet {
         }
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+ /*   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         StringBuilder jb = new StringBuilder();
         String line = null;
@@ -73,7 +67,7 @@ public class MainServlet extends HttpServlet {
                     System.out.println("1");
                     //data = jsonObject.getString("name");
                     System.out.println("2");
-                    names = SQLiteClass.getChildren();
+                    names = SQLiteClass.getChildren(jsonObject.getString("name"));
                     System.out.println("3"+names.toString());
                     jsonToReturn0 = new JSONObject();
                     jsonToReturn0.put("answer", "children");
@@ -91,4 +85,5 @@ public class MainServlet extends HttpServlet {
             System.out.println(e.toString());
         }
     }
+}*/
 }
