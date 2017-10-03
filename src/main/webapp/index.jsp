@@ -32,7 +32,7 @@
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-
+_
 
 
 </head>
@@ -48,7 +48,7 @@
 </div>
 
 <div id="tree" class="section">
-    <div class="task__content Root"  onclick="tree_toggle(arguments[0])">
+    <div class="task__content Root"  onclick="treeToggle(arguments[0])">
         <div class="MainNode">Root</div>
         <ul class="Container ">
             <li class="Node IsRoot ExpandClosed">
@@ -154,7 +154,7 @@
 
 
 
-    function tree_toggle(event) {
+    function treeToggle(event) {
 
         event = event || window.event
         var clickedElem = event.target || event.srcElement
