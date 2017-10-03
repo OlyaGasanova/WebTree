@@ -57,7 +57,6 @@ DropTarget.prototype.onDragEnd = function(avatar, event) {
     }
 
     this._hideHoverIndication();
-
     // получить информацию об объекте переноса
     var avatarInfo = avatar.getDragInfo(event);
 
@@ -81,10 +80,7 @@ DropTarget.prototype.onDragEnd = function(avatar, event) {
         elemToMove.classList.remove("IsRoot");
     if (!elemToMove.classList.contains("IsRoot")&&ul.parentNode.classList.contains("Root"))
         elemToMove.classList.add("IsRoot");
-    if (ul.parentNode.classList.contains("ExpandLeaf")) {
-        ul.parentNode.classList.remove("ExpandLeaf");
-        ul.parentNode.classList.add("ExpandOpen");
-    }
+
 
     // вставить новый узел в нужное место среди потомков, в алфавитном порядке
     var li = null;
@@ -98,23 +94,27 @@ DropTarget.prototype.onDragEnd = function(avatar, event) {
     }
 
 
-    console.log(elemToMove.parentNode.parentNode.classList.toString());
-
-    if(elemToMove.parentNode.firstElementChild==elemToMove.parentNode.lastElementChild) {
-        elemToMove.parentNode.parentNode.classList.remove("ExpandOpen");
-        elemToMove.parentNode.parentNode.classList.add("ExpandLeaf");
-        console.log("azazaz");
+    if (elemToMove.parentNode.parentNode!=ul.parentNode) {
+        if (elemToMove.parentNode.firstElementChild == elemToMove.parentNode.lastElementChild) {
+            elemToMove.parentNode.parentNode.classList.remove("ExpandOpen");
+            elemToMove.parentNode.parentNode.classList.add("ExpandLeaf");
+            console.log("azazaz");
+        }
+        else {
+            if (elemToMove.parentNode.lastElementChild == elemToMove)
+                elemToMove.parentNode.children[elemToMove.parentNode.children.length - 2].classList.add("IsLast");
+            //else  elemToMove.parentNode.children[elemToMove.parentNode.children.length-2].classList.add("IsLast");
+            console.log("переделаем изласт");
+            console.log(elemToMove.parentNode.children.length);
+            console.log(elemToMove.parentNode.children[elemToMove.parentNode.children.length - 1].classList.toString());
+        }
     }
-    else {
-        if (elemToMove.parentNode.lastElementChild == elemToMove)
-            elemToMove.parentNode.children[elemToMove.parentNode.children.length-2].classList.add("IsLast");
-        //else  elemToMove.parentNode.children[elemToMove.parentNode.children.length-2].classList.add("IsLast");
-        console.log("переделаем изласт");
-        console.log(elemToMove.parentNode.children.length);
-        console.log(elemToMove.parentNode.children[elemToMove.parentNode.children.length-1].classList.toString());
+
+    if (ul.parentNode.classList.contains("ExpandLeaf")) {
+        ul.parentNode.classList.remove("ExpandLeaf");
+        ul.parentNode.classList.add("ExpandOpen");
     }
 
-    console.log(elemToMove.parentNode.parentNode.classList.toString());
     if(ul.lastElementChild) ul.lastElementChild.classList.remove("IsLast");
     ul.insertBefore(elemToMove, li);
     ul.lastElementChild.classList.add("IsLast");

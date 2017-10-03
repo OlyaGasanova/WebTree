@@ -1,4 +1,6 @@
-
+.selected {
+    background: #697fc2;
+}
 
 .Container {
     padding: 0;
@@ -70,11 +72,5 @@
     cursor: auto;
 }
 
-.ExpandLoading   {
-    width: 18px;
-    height: 18px;
-    float: left;
-    background-image: url(/img/expand_loading.gif);
-}
 
 

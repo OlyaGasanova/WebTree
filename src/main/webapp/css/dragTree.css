@@ -1,5 +1,4 @@
 
-/* #tree span.hover, для приоритета перед :hover также добавлен подселектор */
 
 #tree div.hover,
 #tree div.hover:hover {

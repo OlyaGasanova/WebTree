@@ -14,7 +14,6 @@
     <script src="js/DragZone.js"></script>
     <script src="js/DropTarget.js"></script>
     <script src="js/ShowForm.js"></script>
-    <script src="js/Actions.js"></script>
     <script src="https://cdn.polyfill.io/v1/polyfill.js?features=Element.prototype.closest"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
@@ -24,20 +23,15 @@
     <link href="https://pingendo.github.io/pingendo-bootstrap/themes/default/bootstrap.css"
           rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="./css/dragTree.css">
-    <link rel="stylesheet" type="text/css" href="./css/contextMenu.css">
     <link rel="stylesheet" type="text/css" href="./css/form.css">
-    <link rel="stylesheet" type="text/css" href="./css/main.css">
     <link rel="stylesheet" type="text/css" href="./css/treeUI.css">
 
     <link href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" type="text/css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="css/main.css">
-
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-    <script src="js/script.js"></script>
 
 
 
@@ -129,76 +123,6 @@
 
 
 
-
-
-    function showCover() {
-        var coverDiv = document.createElement('div');
-        coverDiv.id = 'cover-div';
-        document.body.appendChild(coverDiv);
-    }
-
-    function hideCover() {
-        document.body.removeChild(document.getElementById('cover-div'));
-    }
-
-    function showPrompt(text, callback) {
-        showCover();
-        var form = document.getElementById('prompt-form');
-        var container = document.getElementById('prompt-form-container');
-        document.getElementById('prompt-message').innerHTML = text;
-        form.elements.text.value = '';
-
-        function complete(value) {
-            hideCover();
-            container.style.display = 'none';
-            document.onkeydown = null;
-            callback(value);
-        }
-
-        form.onsubmit = function() {
-            var value = form.elements.text.value;
-            if (value == '') return false; // игнорировать пустой submit
-
-            complete(value);
-            return false;
-        };
-
-        form.elements.cancel.onclick = function() {
-            complete(null);
-        };
-
-        document.onkeydown = function(e) {
-            if (e.keyCode == 27) { // escape
-                complete(null);
-            }
-        };
-
-        var lastElem = form.elements[form.elements.length - 1];
-        var firstElem = form.elements[0];
-
-        lastElem.onkeydown = function(e) {
-            if (e.keyCode == 9 && !e.shiftKey) {
-                firstElem.focus();
-                return false;
-            }
-        };
-
-        firstElem.onkeydown = function(e) {
-            if (e.keyCode == 9 && e.shiftKey) {
-                lastElem.focus();
-                return false;
-            }
-        };
-
-
-        container.style.display = 'block';
-        form.elements.text.focus();
-    }
-
-
-
-
-
     var lastClickedLi = null;
 
     // --- обработчики ---
@@ -206,105 +130,77 @@
     document.body.onclick = function(event) {
         var target = event.target;
 
-        //console.log("привки");
-        // console.log(target.className)
         if (!target.classList.contains("Content")) return;
-
-        //if (event.metaKey || event.ctrlKey) {
-        //    toggleSelect(target);
-        //} else if (event.shiftKey) {
-        //     selectFromLast(target);
-        // } else {
         selectSingle(target);
-        //}
-
         lastClickedLi = target;
     }
-
-
-
-    // --- функции для выделения ---
-
-    /* function toggleSelect(li) {
-     li.classList.toggle('selected');
-     }*/
-
-    /*function selectFromLast(target) {
-     var startElem = lastClickedLi || ul.children[0];
-
-     var isLastClickedBefore = startElem.compareDocumentPosition(target) & 4;
-
-     if (isLastClickedBefore) {
-     for (var elem = startElem; elem != target; elem = elem.nextElementSibling) {
-     elem.classList.add('selected');
-     }
-     } else {
-     for (var elem = startElem; elem != target; elem = elem.previousElementSibling) {
-     elem.classList.add('selected');
-     }
-     }
-     elem.classList.add('selected');
-     }*/
-
-
 
 
     function deselectAll() {
         var arraychilds = document.body.getElementsByTagName('*');
         for (var i = 0; i < arraychilds.length; i++) {
             arraychilds[i].classList.remove('selected');
-            arraychilds[i].classList.remove("select");
 
         }
     }
 
     function selectSingle(li) {
-        // console.log("привки");
         deselectAll();
-        li.previousElementSibling.classList.add('selected');
-        li.parentNode.classList.add("select");
+        if (li.previousElementSibling) li.previousElementSibling.classList.add('selected');
     }
-
-
 
 
     var currentElem = null;
 
-    document.body.onmouseover = function(event) {
-        if (currentElem) {
-            return;
+
+
+    function tree_toggle(event) {
+
+        event = event || window.event
+        var clickedElem = event.target || event.srcElement
+
+        if (!hasClass(clickedElem, 'Expand')) {
+            return // клик не там
         }
 
-        var target = event.target;
-
-        //console.log(target.classList.toString());
-        while (target != this) {
-            if (target.classList.contains('Content')||target.classList.contains('MainNode')) break;
-            target = target.parentNode;
-        }
-        if (target == this) return;
-
-        currentElem = target;
-        target.style.background = '#7b92d6';
-        //console.log(event.type + ': ' + 'target=' + str(event.target));
-    };
-
-
-
-    document.body.onmouseout = function(event) {
-        if (!currentElem) return;
-
-        var relatedTarget = event.relatedTarget;
-        if (relatedTarget) {
-            while (relatedTarget) {
-                if (relatedTarget == currentElem) return;
-                relatedTarget = relatedTarget.parentNode;
-            }
+        // Node, на который кликнули
+        selectSingle(clickedElem.nextElementSibling);
+        var node = clickedElem.parentNode
+        if (hasClass(node, 'ExpandLeaf')) {
+            return // клик на листе
         }
 
-        currentElem.style.background = '';
-        currentElem = null;
-    };
+        // определить новый класс для узла
+        var newClass = hasClass(node, 'Expand') ? 'ExpandLoading' : 'Expand'
+        // заменить текущий класс на newClass
+        var re =  /(^|\s)(Expand|ExpandLoading)(\s|$)/
+        node.firstElementChild.className = node.firstElementChild.className.replace("Expand", 'ExpandLoading');
+
+        setTimeout(function() {
+
+            var newClass = hasClass(node, 'Expand') ? 'ExpandLoading' : 'Expand'
+            // заменить текущий класс на newClass
+            var re =  /(^|\s)(Expand|ExpandLoading)(\s|$)/
+            node.firstElementChild.className = node.firstElementChild.className.replace('ExpandLoading',"Expand");
+
+            newClass = hasClass(node, 'ExpandOpen') ? 'ExpandClosed' : 'ExpandOpen'
+            // заменить текущий класс на newClass
+            re =  /(^|\s)(ExpandOpen|ExpandClosed)(\s|$)/
+            node.className = node.className.replace(re, '$1'+newClass+'$3');
+        }, 2000);
+
+
+        //!!!!!!!!!!!!
+        //tryget();
+    }
+
+
+    function hasClass(elem, className) {
+        return new RegExp("(^|\\s)"+className+"(\\s|$)").test(elem.className)
+    }
+
+
+
 
     (function() {
 
@@ -313,12 +209,11 @@
         function clickInsideElement( e, className ) {
             var el = e.srcElement || e.target;
             var el2 = e.srcElement || e.target;
-            // console.log(className+" !!!! "+el.getAttribute("class"));
             if ( el.classList.contains(className) ) {
                 return el2;
             } else {
                 while ( el = el.parentNode ) {
-                    //console.log(className+" !!!! "+el.getAttribute("class"));
+                    console.log(el.classList);
                     if ( el.classList && el.classList.contains(className) ) {
                         return el2;
                     }
@@ -383,6 +278,7 @@
             document.addEventListener( "contextmenu", function(e) {
                 taskItemInContext = clickInsideElement( e, taskItemClassName );
                 // console.log(taskItemInContext.getAttribute("class")+" gggg");
+                selectSingle(taskItemInContext);
                 if ( taskItemInContext ) {
                     e.preventDefault();
                     toggleMenuOn();
@@ -467,7 +363,8 @@
 
             selectSingle(taskItemInContext);
 
-            if (link.getAttribute("data-action")=="add") showPrompt("Введите имя", function(value) {
+            if (link.getAttribute("data-action")=="add")
+                showPrompt("Введите имя", function(value) {
                 if (value==null) return;
 
                 if (taskItemInContext.nextElementSibling) {
@@ -477,12 +374,11 @@
                     el.classList.add("ExpandOpen");
                     el = taskItemInContext.nextElementSibling;
                     if (el.firstElementChild) {
-                        var lastChild = el.lastElementChild;
-                        lastChild.classList.remove("IsLast");
-
+                        el.lastElementChild.classList.remove("IsLast");
                     }
+
                     var newLi = document.createElement('li');
-                    newLi.className = "Node ExpandLeaf draggable IsLast";
+                    newLi.className = "Node ExpandLeaf IsLast";
                     if (taskItemInContext.classList.contains("MainNode")) newLi.className = "Node ExpandLeaf IsRoot IsLast";
 
                     var child = document.createElement('div');
@@ -500,12 +396,12 @@
                     var el = taskItemInContext.parentNode;
                     el.classList.remove("ExpandLeaf");
                     el.classList.add("ExpandOpen");
+
                     var newUl = document.createElement('ul');
                     newUl.className="Container";
 
-                    //el append <ul class="Container">
                     newLi = document.createElement('li');
-                    newLi.className = "Node ExpandLeaf draggable IsLast";
+                    newLi.className = "Node ExpandLeaf IsLast";
                     if (taskItemInContext.classList.contains("MainNode")) newLi.className = "Node ExpandLeaf IsRoot IsLast";
 
                     var child = document.createElement('div');
@@ -514,8 +410,8 @@
                     child = document.createElement('div');
                     child.className = "Content";
                     child.innerHTML = value;
-                    newLi.appendChild(child);
 
+                    newLi.appendChild(child);
                     newUl.appendChild(newLi);
                     el.appendChild(newUl);
                 }
@@ -534,12 +430,10 @@
                 if(el.parentNode.firstElementChild==el.parentNode.lastElementChild) {
                     el.parentNode.parentNode.classList.remove("ExpandOpen");
                     el.parentNode.parentNode.classList.add("ExpandLeaf");
-                    console.log("azazaz");
                 }
                 else {
                     if (el.parentNode.lastElementChild == el)
                         el.parentNode.children[el.parentNode.children.length-2].classList.add("IsLast");
-                    console.log("переделаем изласт");
                 }
                 el.remove();
             }
@@ -553,98 +447,7 @@
 
 
 
-    function tryget() {
 
-        var jsonData = new Object();
-        jsonData.command = "2";
-
-        var serverHostName = window.location.hostname;
-
-        var serverProtocolName = window.location.protocol;
-
-        var portName = window.location.port;
-        serverPath = serverProtocolName + "//" + serverHostName + ":" + portName;
-        //console.log(serverPath);
-
-        $.ajax({
-            url: serverPath + "/",
-            type: 'POST',
-            data: JSON.stringify(jsonData),
-
-            dataType: 'json',
-            async: true,
-
-            success: function (event) {
-                switch (event["answer"])
-                {
-                    case "ok":
-                        alert("success");
-                        break;
-
-                    case "children":
-                        var keysList = event["list"].replace("[", ""). replace("]", "").split(",");
-                        $("#Item1_1_2").after("<ul class='Container'>"+"<li class='Node ExpandLeaf IsLast'>"+
-                            "<div class='Expand'></div>"+
-                            "<div class='Content'>Item 1.1.2.1</div>"+
-                            "</li>"+"</ul>");
-                        // console.log("что-то работает");
-                        keysList.forEach(function(item, i, arr) {
-                            // console.log(item);
-                        });
-
-                        break;
-                }
-            },
-            error: function (xhr, status, error) {
-                alert(error);
-                // console.log("запрос не посылается");
-            }
-        });
-    }
-
-    function tree_toggle(event) {
-
-        event = event || window.event
-        var clickedElem = event.target || event.srcElement
-
-        if (!hasClass(clickedElem, 'Expand')) {
-            return // клик не там
-        }
-
-        // Node, на который кликнули
-        var node = clickedElem.parentNode
-        if (hasClass(node, 'ExpandLeaf')) {
-            return // клик на листе
-        }
-
-        // определить новый класс для узла
-        var newClass = hasClass(node, 'Expand') ? 'ExpandLoading' : 'Expand'
-        // заменить текущий класс на newClass
-        var re =  /(^|\s)(Expand|ExpandLoading)(\s|$)/
-        node.firstElementChild.className = node.firstElementChild.className.replace("Expand", 'ExpandLoading');
-
-        setTimeout(function() {
-
-            var newClass = hasClass(node, 'Expand') ? 'ExpandLoading' : 'Expand'
-            // заменить текущий класс на newClass
-            var re =  /(^|\s)(Expand|ExpandLoading)(\s|$)/
-            node.firstElementChild.className = node.firstElementChild.className.replace('ExpandLoading',"Expand");
-
-            newClass = hasClass(node, 'ExpandOpen') ? 'ExpandClosed' : 'ExpandOpen'
-            // заменить текущий класс на newClass
-            re =  /(^|\s)(ExpandOpen|ExpandClosed)(\s|$)/
-            node.className = node.className.replace(re, '$1'+newClass+'$3');
-        }, 2000);
-
-
-        //!!!!!!!!!!!!
-        //tryget();
-    }
-
-
-    function hasClass(elem, className) {
-        return new RegExp("(^|\\s)"+className+"(\\s|$)").test(elem.className)
-    }
 </script>
 
 
@@ -652,17 +455,27 @@
 <style>
 
 
+    div.Content:hover {
+        font-weight: bold;
+        cursor: pointer;
+    }
 
-    .dragover { outline: 1px dashed green; }
+    div.MainNode:hover {
+        font-weight: bold;
+        cursor: pointer;
+    }
 
     .selected {
-        background: #697fc2;
+        background: rgba(0, 102, 170, 0.69);
     }
 
-    .btn
-    {
-        margin: 10px;
+    .ExpandLoading   {
+        width: 18px;
+        height: 18px;
+        float: left;
+        background-image: url(img/expand_loading.gif);
     }
+
 
     .border
     {
@@ -673,85 +486,6 @@
     }
 
 
-
-    .Container {
-        padding: 0;
-        margin: 0;
-    }
-
-    .Container li {
-        list-style-type: none;
-    }
-
-    .Node {
-        background-image : url(/img/i.gif);
-        background-position : top left;
-        background-repeat : repeat-y;
-        margin-left: 18px;
-        zoom: 1;
-    }
-
-    .IsRoot {
-        margin-left: 0;
-    }
-
-
-    /* left vertical line (grid) for all nodes */
-    .IsLast {
-        background-image: url(img/i_half.gif);
-        background-repeat : no-repeat;
-    }
-
-    .ExpandOpen .Expand {
-        background-image: url(img/expand_minus.gif);
-    }
-
-    /* closed is higher priority than open */
-    .ExpandClosed .Expand {
-        background-image: url(img/expand_plus.gif);
-    }
-
-    /* highest priority */
-    .ExpandLeaf .Expand {
-        background-image: url(img/expand_leaf.gif);
-    }
-
-    .Content {
-        min-height: 18px;
-        margin-left:18px;
-    }
-
-    * html  .Content {
-        height: 18px;
-    }
-
-    .Expand {
-        width: 18px;
-        height: 18px;
-        float: left;
-    }
-
-    .ExpandOpen .Container {
-        display: block;
-    }
-
-    .ExpandClosed .Container {
-        display: none;
-    }
-
-    .ExpandOpen .Expand, .ExpandClosed .Expand {
-        cursor: pointer;
-    }
-    .ExpandLeaf .Expand {
-        cursor: auto;
-    }
-
-    .ExpandLoading   {
-        width: 18px;
-        height: 18px;
-        float: left;
-        background-image: url(img/expand_loading.gif);
-    }
 
 
     .tasks {
@@ -806,58 +540,13 @@
     .context-menu__link {
         display: block;
         padding: 4px 12px;
-        color: #0066aa;
+        color: rgb(0, 102, 170);
         text-decoration: none;
     }
 
     .context-menu__link:hover {
         color: #fff;
         background-color: #0066aa;
-    }
-
-
-    #prompt-form {
-        display: inline-block;
-        padding: 5px 5px 5px 5px;
-        width: 200px;
-        border: 1px solid black;
-        background: white;
-        vertical-align: middle;
-    }
-
-    #prompt-form-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 9999;
-        display: none;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-    }
-
-    #prompt-form-container:before {
-        display: inline-block;
-        height: 100%;
-        content: '';
-        vertical-align: middle;
-    }
-
-    #cover-div {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 9000;
-        width: 100%;
-        height: 100%;
-        background-color: gray;
-        opacity: 0.3;
-    }
-
-    #prompt-form input[name="text"] {
-        display: block;
-        margin: 5px;
-        width: 140px;
     }
 
     body{
