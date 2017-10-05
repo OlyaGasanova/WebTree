@@ -27,8 +27,8 @@ function getElementUnderClientXY(elem, clientX, clientY) {
 
   elem.style.display = display;
 
-  if (!target || target == document) { // это бывает при выносе за границы окна
-    target = document.body; // поправить значение, чтобы был именно элемент
+  if (!target || target == document) { 
+    target = document.body; 
   }
 
   return target;

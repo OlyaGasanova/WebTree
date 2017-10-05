@@ -7,7 +7,7 @@ var dragManager = new function() {
 
   function onMouseDown(e) {
 
-    if (e.which != 1) { // не левой кнопкой
+    if (e.which != 1) { 
       return false;
     }
 
@@ -17,7 +17,7 @@ var dragManager = new function() {
       return;
     }
 
-    // запомним, что элемент нажат на текущих координатах pageX/pageY
+    
     downX = e.pageX;
     downY = e.pageY;
 
@@ -25,31 +25,27 @@ var dragManager = new function() {
   }
 
   function onMouseMove(e) {
-    if (!dragZone) return; // элемент не зажат
+    if (!dragZone) return; 
 
-    if (!avatar) { // элемент нажат, но пока не начали его двигать
+    if (!avatar) { 
       if (Math.abs(e.pageX - downX) < 3 && Math.abs(e.pageY - downY) < 3) {
         return;
       }
-      // попробовать захватить элемент
       avatar = dragZone.onDragStart(downX, downY, e);
 
-      if (!avatar) { // не получилось, значит перенос продолжать нельзя
-        cleanUp(); // очистить приватные переменные, связанные с переносом
+      if (!avatar) { 
+        cleanUp(); 
         return;
       }
     }
 
-    // отобразить перенос объекта, перевычислить текущий элемент под курсором
+    
     avatar.onDragMove(e);
 
-    // найти новый dropTarget под курсором: newDropTarget
-    // текущий dropTarget остался от прошлого mousemove
-    // *оба значения: и newDropTarget и dropTarget могут быть null
+   
     var newDropTarget = findDropTarget(e);
 
     if (newDropTarget != dropTarget) {
-      // уведомить старую и новую зоны-цели о том, что с них ушли/на них зашли
       dropTarget && dropTarget.onDragLeave(newDropTarget, avatar, e);
       newDropTarget && newDropTarget.onDragEnter(dropTarget, avatar, e);
     }
@@ -63,16 +59,14 @@ var dragManager = new function() {
 
   function onMouseUp(e) {
 
-    if (e.which != 1) { // не левой кнопкой
+    if (e.which != 1) { 
       return false;
     }
 
-    if (avatar) { // если уже начали передвигать
+    if (avatar) { 
 
       if (dropTarget) {
-        // завершить перенос и избавиться от аватара, если это нужно
-        // эта функция обязана вызвать avatar.onDragEnd/onDragCancel
-        dropTarget.onDragEnd(avatar, e);
+         dropTarget.onDragEnd(avatar, e);
       } else {
         avatar.onDragCancel();
       }
@@ -83,7 +77,6 @@ var dragManager = new function() {
   }
 
   function cleanUp() {
-    // очистить все промежуточные объекты
     dragZone = avatar = dropTarget = null;
   }
 
@@ -96,7 +89,6 @@ var dragManager = new function() {
   }
 
   function findDropTarget(event) {
-    // получить элемент под аватаром
     var elem = avatar.getTargetElem();
 
     while (elem != document && !elem.dropTarget) {

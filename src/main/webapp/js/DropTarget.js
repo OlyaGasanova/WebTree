@@ -13,18 +13,18 @@ DropTarget.prototype._getTargetElem = function(avatar, event) {
         return;
     }
 
-    // проверить, может быть перенос узла внутрь самого себя или в себя?
+    
     var elemToMove = avatar.getDragInfo(event).dragZoneElem.parentNode;
 
     var elem = target;
     while (elem) {
-        if (elem == elemToMove) return; // попытка перенести родителя в потомка
+        if (elem == elemToMove) return; 
         elem = elem.parentNode;
     }
 
     return target;
 
-    // return this._elem;
+   
 };
 
 
@@ -51,26 +51,26 @@ DropTarget.prototype.onDragMove = function(avatar, event) {
 
 DropTarget.prototype.onDragEnd = function(avatar, event) {
     if (!this._targetElem) {
-        // перенос закончился вне подходящей точки приземления
+        
         avatar.onDragCancel();
         return;
     }
 
     this._hideHoverIndication();
-    // получить информацию об объекте переноса
+
     var avatarInfo = avatar.getDragInfo(event);
 
-    avatar.onDragEnd(); // аватар больше не нужен, перенос успешен
+    avatar.onDragEnd(); 
 
-    // вставить элемент в детей в отсортированном порядке
+   
     var elemToMove = avatarInfo.dragZoneElem.parentNode; // <LI>
     var ul = this._targetElem.parentNode.getElementsByTagName('UL')[0];
 
 
     var title = avatarInfo.dragZoneElem.innerHTML; // переносимый заголовок
 
-    // получить контейнер для узлов дерева, соответствующий точке преземления
-    if (!ul) { // нет детей, создадим контейнер
+    
+    if (!ul) { 
         ul = document.createElement('UL');
         ul.classList.add("Container");
         this._targetElem.parentNode.appendChild(ul);
@@ -82,7 +82,6 @@ DropTarget.prototype.onDragEnd = function(avatar, event) {
         elemToMove.classList.add("IsRoot");
 
 
-    // вставить новый узел в нужное место среди потомков, в алфавитном порядке
     var li = null;
     for (var i = 0; i < ul.children.length; i++) {
         li = ul.children[i];
